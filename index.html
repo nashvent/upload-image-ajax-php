@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+</head>
+
+<body>
+    <form action="upload.php" method="POST" enctype="multipart/form-data">
+        <input id="test" type="file" name="image" required />
+        <br>
+        <br>
+        <br>
+        <img id="preview" src="" alt="">
+    </form>
+
+    <script>
+        $('#test').change(function () {
+            var input = this;
+            var url = $(this).val();
+            var ext = url.substring(url.lastIndexOf('.') + 1).toLowerCase();
+            if (input.files && input.files[0] && (ext == "gif" || ext == "png" || ext == "jpeg" || ext == "jpg")) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    //console.log("result", e.target.result);
+                    $('#preview').attr('src', e.target.result);
+                    uploadImg(e.target.result);
+
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        });
+
+
+
+        function base64ToBlob(base64, mime) {
+            mime = mime || '';
+            var sliceSize = 1024;
+            var byteChars = window.atob(base64);
+            var byteArrays = [];
+
+            for (var offset = 0, len = byteChars.length; offset < len; offset += sliceSize) {
+                var slice = byteChars.slice(offset, offset + sliceSize);
+
+                var byteNumbers = new Array(slice.length);
+                for (var i = 0; i < slice.length; i++) {
+                    byteNumbers[i] = slice.charCodeAt(i);
+                }
+
+                var byteArray = new Uint8Array(byteNumbers);
+
+                byteArrays.push(byteArray);
+            }
+
+            return new Blob(byteArrays, { type: mime });
+        }
+
+
+        function uploadImg(base64Image) {
+            var url = "upload.php";
+            var base64ImageContent = base64Image.replace(/^data:image\/(png|jpg);base64,/, "");
+            var blob = base64ToBlob(base64ImageContent, 'image/png');
+            var formData = new FormData();
+            formData.append('image', blob);
+            formData.append('extra_data',"extra info here");
+            $.ajax({
+                url: url,
+                type: "POST",
+                cache: false,
+                contentType: false,
+                processData: false,
+                data: formData
+            })
+            .done(function (e) {
+                //alert('done!');
+            });
+        }
+    </script>
+
+</body>
+
+</html>
