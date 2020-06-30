@@ -2,6 +2,7 @@
 Notes:
 - Run in localhost
 - Use Jquery
+- Create directory "images" in project root
 
 ## Flow
 - Create input file in html
